@@ -1,23 +1,31 @@
 package pages;
 
+import com.codeborne.selenide.ElementsCollection;
 import com.codeborne.selenide.SelenideElement;
-import models.Ticket;
-import org.openqa.selenium.support.ui.Select;
-import org.testng.Assert;
 import ru.lanit.at.web.annotations.Name;
+import ru.lanit.at.web.pagecontext.WebPage;
 
+import static com.codeborne.selenide.Selenide.$$x;
 import static com.codeborne.selenide.Selenide.$x;
 
 @Name(value = "Tickets")
-public class TicketsPage extends HelpdeskBasePage {
+public class TicketsPage extends WebPage {
 
-    @Name("поле все статусы")
-    private SelenideElement allStatuses = $x("//select[@id='id_statuses']");
+    @Name("поле 'Status'")
+    private ElementsCollection statuses = $$x("//select[@id='id_statuses']/option");
+
+    @Name("кнопка 'delete Status'")
+     private SelenideElement deleteStatusBtn =
+            $x("//li[@id='filterBoxStatus']//button[contains(@class, 'filterBuilderRemove')]");
+
+    @Name("список Drop-Down 'Add Filter'")
+    private SelenideElement addFilter =
+            $x("//select[@id='filterBuilderSelect']");
 
     @Name("кнопка 'Apply Filters'")
     private SelenideElement applyFiltersBtn = $x("//input[@value='Apply Filters']");
 
-    @Name("кнопка 'Save Query'")
+    @Name("кнопка 'Save Query' more information")
     private SelenideElement saveQueryBtnMoreInformation =
             $x("//button[contains(@class, 'collapsed btn')]//i[@class='fas fa-save']");
 
@@ -29,6 +37,10 @@ public class TicketsPage extends HelpdeskBasePage {
     private SelenideElement saveQueryBtn =
             $x("//input[@value='Save Query']");
 
+    @Name("текст с 'Query Name'")
+    private SelenideElement textWithName =
+            $x("//li[contains(text(), 'You are currently viewing saved query')]");
+
     @Name("кнопка 'Delete Save Query'")
     private SelenideElement deleteSaveQueryBtn =
             $x("//a[contains(text(),'Delete Saved Query')]");
@@ -36,35 +48,4 @@ public class TicketsPage extends HelpdeskBasePage {
     @Name("кнопка 'Yes I Understand - Delete It Anyway'")
     private SelenideElement agreeBtn =
             $x("//button[contains(text(), 'Yes I Understand - Delete It Anyway')]");
-
-    public void openTicket(Ticket ticket) {
-        SelenideElement findTicket = $x("//a[contains(text(),'" + ticket.getTitle() + "')]");
-        findTicket.click();
-    }
-
-    public void fillAndSaveFilter(String textStatus, String textName){
-        Select selectObject = new Select(allStatuses);
-        selectObject.deselectAll();
-        selectObject.selectByVisibleText(textStatus);
-        applyFiltersBtn.click();
-        saveQueryBtnMoreInformation.click();
-        queryName.sendKeys(textName);
-        saveQueryBtn.click();
-    }
-    public void verifyFiltersWereAdded(String statusText, String nameText){
-        SelenideElement statusIsSelect =
-                $x("//select[@id='id_statuses']//option[@selected='selected']");
-        SelenideElement textWithName =
-                $x("//li[@class='list-group-item']/strong");
-        Assert.assertEquals(statusIsSelect.getText(),
-                statusText,
-                "Фильтры не применены");
-        Assert.assertTrue(textWithName.getText().contains(nameText),
-                "Название поискового запроса не совпадает");
-    }
-
-    public void clickDeleteSaveQueryBtn(){
-        deleteSaveQueryBtn.click();
-        agreeBtn.click();
-    }
 }
