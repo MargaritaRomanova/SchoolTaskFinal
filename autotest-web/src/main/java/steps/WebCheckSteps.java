@@ -1,6 +1,7 @@
 package steps;
 
 import actions.WebChecks;
+import com.codeborne.selenide.ElementsCollection;
 import com.codeborne.selenide.SelenideElement;
 import io.cucumber.java.ru.Когда;
 import io.cucumber.java.ru.Тогда;
@@ -90,6 +91,24 @@ public class WebCheckSteps {
                 .getElement(elementName);
         WebChecks.elementVisibleOnPage(element, null);
         LOGGER.info("на странице '{}' имеется элемент '{}'", pageManager.getCurrentPage().name(), elementName);
+    }
+
+    @Когда("из списка {string} выбран элемент {string}")
+    public void elementIsSelect(String xpathExpression, String text) {
+        ElementsCollection elements = pageManager
+                .getCurrentPage()
+                .getElementsCollection(xpathExpression);
+        boolean textIsExist = false;
+        for (SelenideElement element : elements) {
+            if (element.getText().contains(text)) {
+                WebChecks.checkAttribute(element, "selected", "true", 3);
+                textIsExist = true;
+                LOGGER.info("из списка '{}' выбран элемент '{}'", xpathExpression, text);
+            }
+        }
+        if (!textIsExist){
+            LOGGER.error("в списке '{}' нет текста '{}'", xpathExpression, text);
+        }
     }
 
     /**
